@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <title>SAX vs Browser Tests, compare output from our SAX Parser and browser DOM output</title>
+    <script type="text/javascript" src="../jsunit/app/jsUnitCore.js"></script>
+    <script type="text/javascript" src="../jssaxparser/sax.js"></script>
+    <script type="text/javascript" src="../jssaxparser/DomContentHandler.js"></script>
+    <script type="text/javascript" src="../examples/xml_samples.js"></script>
+    <script type="text/javascript" src="manageWhiteSpace.js"></script>
+    <script type="text/javascript" src="dom_utils.js"></script>
+    <script type="text/javascript" src="jsxmlunit.js"></script>
+    <script type="text/javascript" src="applyXslt.js"></script>
+    <script type="text/javascript"><!--//--><![CDATA[//><!--
+
+    /*global alert, assertTrue, assertXmlEquals, createDocumentFromText, DomContentHandler, XMLReaderFactory, loadFile, loadXml, loadXml2, loadXml3, loadRelaxng, loadRelaxng2,loadRelaxng3, JsUnitException */
+    // (Note: change reference to SAXParser above if change name)
+    var contentHandler;
+    var saxParser;
+    
+    function setUp() {
+        contentHandler = new DomContentHandler();
+        saxParser = XMLReaderFactory.createXMLReader();
+        saxParser.setHandler(contentHandler);
+    }
+
+    function parse(xml) {
+        try {
+            saxParser.parseString(xml);
+        } catch(e) {
+            assertTrue(e.message, false);
+        }
+        assertTrue(contentHandler.saxParseExceptions.length + " SAX exception(s) has(have) been thrown",
+        contentHandler.saxParseExceptions.length === 0);
+        assertXmlEquals(createDocumentFromText(xml), contentHandler.document);
+    }
+    
+    function testParse_test_files_chinese() {
+        var fileAsText = loadFile("test_files/chintest9.xml");
+        parse(fileAsText);
+    }
+    
+    function testParse_test_files_trailing_misc() {
+        var fileAsText = loadFile("test_files/trailing_misc.xml");
+        parse(fileAsText);
+    }
+    
+    function testParse_test_files_namespaces() {
+        var fileAsText = loadFile("test_files/namespaces.xml");
+        parse(fileAsText);
+    }
+    
+    function testParse_test_files_xslt() {
+        var fileAsText = loadFile("test_files/xslt_ex.xml");
+        parse(fileAsText);
+    }
+    
+    function testParse_test_files_comment_cdata() {
+        var fileAsText = loadFile("test_files/comment_cdata.xml");
+        parse(fileAsText);
+    }
+    
+    function testParse_test_files_svg() {
+        var fileAsText = loadFile("test_files/Water_molecule_3D.svg");
+        parse(fileAsText);
+    }
+    
+    function testParse_test_files_svg_with_entities() {
+        var fileAsText = loadFile("test_files/chem1.svg");
+        parse(fileAsText);
+    }
+    
+    function testParse_test_files_6nbn() {
+        var fileAsText = loadFile("test_files/6nbn.xml");
+        parse(fileAsText);
+    }
+    
+    function testParse_test_files_benchmark() {
+        var fileAsText = loadFile("test_files/benchmark.xml");
+        parse(fileAsText);
+    }
+    
+    
+    function testParse_xml1() {
+        var xml = loadXml();
+        parse(xml);
+    }
+    
+    function testParse_xml2() {
+        var xml = loadXml2();
+        parse(xml);
+    }
+    
+    function testParse_xml3() {
+        var xml = loadXml3();
+        parse(xml);
+    }
+    
+    function testParse_relaxng() {
+        var xml = loadRelaxng();
+        parse(xml);
+    }
+    
+    function testParse_relaxng2() {
+        var xml = loadRelaxng2();
+        parse(xml);
+    }
+    
+    function testParse_relaxng3() {
+        var xml = loadRelaxng3();
+        parse(xml);
+    }
+    
+    function testParse_catalog_dtd() {
+        var fileAsText = loadFile("test_files/catalog_dtd.xml");
+        parse(fileAsText);
+    }
+    
+    function runAllTests () {
+        setUp();
+        testParse_test_files_trailing_misc();
+        setUp();
+        testParse_test_files_namespaces();
+        setUp();
+        testParse_test_files_xslt();
+        setUp(); // needed a new DOM content handler, so calling before each test
+        testParse_test_files_comment_cdata();
+        setUp();
+        testParse_test_files_svg();
+        setUp();
+        testParse_test_files_svg_with_entities();
+        setUp();
+        testParse_test_files_6nbn();
+        setUp();
+        testParse_test_files_benchmark();
+        setUp();
+        testParse_xml1();
+        setUp();
+        testParse_xml2();
+        setUp();
+        testParse_xml3();
+        setUp();
+        testParse_relaxng();
+        setUp();
+        testParse_relaxng2();
+        setUp();
+        testParse_relaxng3();
+        setUp();
+        testParse_catalog_dtd();
+        setUp();
+        testParse_test_files_chinese();
+        alert('done!');
+    }
+    
+    // Brett added to be able to show something in console when error is thrown
+    JsUnitException.prototype.toString = function () {
+        return this.jsUnitMessage;
+    };
+    
+	/*
+	Object.prototype.toString = function () {
+		return this.description;
+	};
+	assertTrue('ok', true, false); // Now will show: Error: uncaught exception: Incorrect arguments passed to assert function
+	*/
+	
+	// all were apparently working except following due to: Error: uncaught exception: Expected translate(20, 20) scale(4, 4) (string) but was translate(20,20) scale(4) (string); the problem didn't show up before since the test had a slight bug in two nested for loops using the same 'i' variable; I fixed it, and then the problem surfaced, until I fudged the sample file slightly--see below.
+	/*
+	setUp();
+	testParse_test_files_svg_with_entities();
+	*/
+	/*
+	// This test case shows that Mozilla is changing (auto-fixing?) the document behind the scenes for SVG, auto-translating the scale() function to have an 
+	//    extra argument (and adjusting whitespace a little too), though apparently not if created through dom.implementation
+	// Errors get triggered for us in assertAttributesEquals() in jsxmlunit.js (which was called by assertXmlEquals() in the same file, which was called in parse() above
+	text = '<svg xmlns="http://www.w3.org/2000/svg">'+
+		'<g transform="translate(20,20) scale(4)"><\/g><\/svg>' ;
+	alert(text)
+	doc=new DOMParser().parseFromString(text,"text/xml");
+	alert(new XMLSerializer().serializeToString(doc)); // Has an extra ", 4" within scale()!
+	// Solved the problem by fudging one attribute value in the SVG file (in the first <g/>) to possess a value which was equivalent to the value to which it would be translated; note that
+	//  there are still problems if you use the latest FF3.5b4--to work with that, just remove the ", 4" at the end of the inside of scale() in chem1.svg
+	*/
+    //--><!]]></script>
+  </head>
+  <body onload="runAllTests()">
+    <p>This is a Test Page for sax.js</p>
+  </body>
+</html>

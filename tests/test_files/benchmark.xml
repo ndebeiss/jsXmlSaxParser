@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<benchmark id="EnRo66_Fig1_X" version="0.1">
+    <description>Responses of an off-centre X-cell in cat retina to the introduction and withdrawal of a
+        stationary sinusoidal grating pattern, with four different spatial phases, from Figure 1 of
+        Enroth-Cugell and Robson (1966) J. Physiol. 187: 517-552.</description>
+    <recording>
+        <brain-region>
+            <retina measureable="spikes">
+                <layer_1>
+                    <ganglion_cell_layer celltypes="Y-OFF X-ON X-OFF"/>
+                </layer_1>
+            </retina>
+        </brain-region>
+    </recording>
+    <analysis difference-measure="root-mean-square">
+        <stage>
+            <spike_histogram>
+                <parameter name="binwidth" value="20.0" units="ms"/>
+            </spike_histogram>
+        </stage>
+        <stage>
+            <raster_plot>
+                <parameter name="raster_parameter" value="20.0" units="ms"/>
+            </raster_plot>
+        </stage>
+    </analysis>
+    <protocols>
+        <protocol id="Phase0deg" repetitions="50" weight="1.0" duration="2000.0">
+            <stimulus_file scale-factor="5.0" max-luminance="1.0"
+                img="c:/Benchmarks/Stimuli/phase0deg.zip"/>
+            <comparison-data
+                url="c:/EnRo66_Fig1_X/EnRo66_fig1_Xcells_0deg.dat"/>
+        </protocol>
+        <protocol id="Phase90deg" repetitions="50" weight="1.0" duration="2000.0">
+            <stimulus_file scale-factor="5.0" max-luminance="1.0"
+                img="c:/Stimuli/phase90deg.zip"/>
+            <comparison-data
+                url="c:/EnRo66_fig1_Xcells_90deg.dat"/>
+        </protocol>
+    </protocols>
+    
+</benchmark>

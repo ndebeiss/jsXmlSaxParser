@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<rootmarkup id="id" ns2:type="type" xmlns="http://defaultnamespace" xmlns:ns1="http://namespace1" xmlns:ns2="http://namespace2" ns2:att="attValue">
+	<firstmarkupunderroot>aTest</firstmarkupunderroot>
+	<ns2:secondmarkupunderroot ns1:name="aName2" ns1:attribute="attributeValue">
+		<ns3:secondchoice ns3:attri="attriValue" ns1:choice="aChoice" xmlns:ns3="http://namespace3">
+			<name>aName</name>
+			<ns3:address ns3:truc="aefa" type="pou">13 rue truc</ns3:address>
+			<ns3:city>paris</ns3:city>
+			<ns1:country>FR</ns1:country>
+			<ns1:age ns3:kowel="aefa">35</ns1:age>
+		</ns3:secondchoice>
+	</ns2:secondmarkupunderroot>
+</rootmarkup>

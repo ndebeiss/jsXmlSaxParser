@@ -1,0 +1,28 @@
+<rootmarkup id="id" type="type">
+	<firstmarkupunderroot>aTest</firstmarkupunderroot>
+    <!-- a comment under root markup -->
+	<secondmarkupunderroot name="aName2">
+        <!-- a comment with non parser &entites; under second markup  -->
+		<secondchoice choice="aChoice">
+			<name>aName</name>
+            <![CDATA[
+CDATA section which must not trigger SAX exceptions (from http://www.w3schools.com/XML/xml_cdata.asp)
+function matchwo(a,b)
+{
+if (a < b && a < 0) then
+   {
+   return 1;
+   }
+else
+   {
+   return 0;
+   }
+}
+]]>
+			<address>13 rue truc</address>
+			<city>paris</city>
+			<country>FR</country>
+			<age>35</age>
+		</secondchoice>
+	</secondmarkupunderroot>
+</rootmarkup>

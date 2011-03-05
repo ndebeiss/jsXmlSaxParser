@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<rootmarkup id="id">
+	<firstmarkupunderroot>aTest</firstmarkupunderroot>
+</rootmarkup>
+<!-- a comment at the end -->
+<?procInst and a procesing instruction too ?>

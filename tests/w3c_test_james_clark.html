@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <title>W3C Tests</title>
+    <script type="text/javascript" src="../jsunit/app/jsUnitCore.js"></script>
+    <script type="text/javascript" src="../jssaxparser/InputSource.js"></script>
+    <script type="text/javascript" src="../jssaxparser/sax.js"></script>
+    <script type="text/javascript" src="../jssaxparser/LocatorImpls.js"></script>
+    <script type="text/javascript" src="../jssaxparser/DomContentHandler.js"></script>
+    <script type="text/javascript" src="../jssaxparser/DefaultHandlers.js"></script>
+    <script type="text/javascript" src="../jssaxparser/Serializer.js"></script>
+    <script type="text/javascript" src="../jssaxparser/validation_common/validator_functions.js"></script>
+    <script type="text/javascript" src="../jssaxparser/validation_common/validator_objects.js"></script>
+    <script type="text/javascript" src="../jssaxparser/jsdatatypelibrary-0.2/datatype_library.js"></script>
+    <script type="text/javascript" src="../examples/xml_samples.js"></script>
+    <script type="text/javascript" src="manageWhiteSpace.js"></script>
+    <script type="text/javascript" src="dom_utils.js"></script>
+    <script type="text/javascript" src="jsxmlunit.js"></script>
+    <script type="text/javascript" src="applyXslt.js"></script>
+    <script type="text/javascript" src="jsdiff.js"></script>
+    <script type="text/javascript" src="w3c_tests.js"></script>
+    <script type="text/javascript"><!--//--><![CDATA[//><!--
+
+    /*global document, alert, assertTrue, DomContentHandler, JsUnitException , DefaultHandler2, SAXException, textContent, InputSource, Serializer, XMLReaderFactory, diffString, loadFile */
+	// (Note: change reference to SAXParser above if change name)
+    var output, testResultSummary;
+    //keeps it global, used in all tests
+    var xmlConf;
+    
+    // Keep track of total test errors
+    var notSupportedCt = 0;
+    var failedCt = 0;
+    var testCt = 0;
+    
+    function setUp() {
+        output = document.getElementById("output");
+    }
+    
+    function isAssumedNotConformant(uri) {
+        switch (uri) {
+            case "valid/sa/012.xml":
+                return true;
+            default:
+                return false;
+        }
+    }
+    
+    function testForStrictCharacterData(uri) {
+        //no test on text data as http://www.w3.org/TR/REC-xml/#NT-Char
+        switch (uri) {
+            case "not-wf/sa/030.xml":
+            case "not-wf/sa/031.xml":
+            case "not-wf/sa/032.xml":
+            case "not-wf/sa/033.xml":
+            case "not-wf/sa/142.xml":
+            case "not-wf/sa/143.xml":
+            case "not-wf/sa/144.xml":
+            case "not-wf/sa/145.xml":
+            case "not-wf/sa/146.xml":
+            case "not-wf/sa/166.xml":
+            case "not-wf/sa/167.xml":
+            case "not-wf/sa/168.xml": // 168-170 are loaded by XMLHttpRequest as a valid string while they are not; might need to implement ByteStream to test these three
+            case "not-wf/sa/169.xml":
+            case "not-wf/sa/170.xml":
+            case "not-wf/sa/177.xml":
+                return true;
+            default:
+                return false;
+        }
+    }
+    
+    function testParseIndividual() {
+        //var contentHandler = new DomContentHandler();
+        var serializer = new Serializer();
+        serializer.setDocumentLocator(new Locator2Impl());
+        var saxParser = XMLReaderFactory.createXMLReader();
+        //saxParser.setHandler(contentHandler);
+        saxParser.setHandler(serializer);
+        saxParser.setFeature('http://xml.org/sax/features/validation', true);
+        saxParser.setFeature('http://debeissat.nicolas.free.fr/ns/attribute-whitespace-normalization', true);
+        try {
+            saxParser.parse(new InputSource("xmlconf/xmltest/not-wf/not-sa/005.xml"));
+            throwNotFatalException(saxParser.errorHandler);
+        } catch(e) {
+            assertTrue(e.message, true);
+        }
+        //for breakpoint
+        var a = "A";
+    }
+
+    function runAllTests () {
+        setUp();
+        //testParseIndividual();
+        
+        testParse(0);
+
+        print_total_errs();
+        
+        alert('Done! '+testResultSummary);
+        
+    }
+    
+    // Brett added to be able to show something in console when error is thrown
+    JsUnitException.prototype.toString = function () {
+        return this.jsUnitMessage;
+    };
+    
+    //--><!]]></script>
+  </head>
+  <body onload="runAllTests()">
+    <p>This is a Test Page for sax.js</p>
+    <div id="outputDiv" style="font-size:xx-small;">
+        <table id="output">
+            <tr><th>uri</th><th>test label</th><th>result message</th></tr>
+            
+            
+        </table>
+    </div>
+  </body>
+</html>

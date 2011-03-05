@@ -1,0 +1,28 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+	<head>
+		<script type="text/javascript" src="../jssaxparser/sax.js"></script>
+		<script type="text/javascript" src="../jssaxparser/DefaultHandlers.js"></script>
+		<script type="text/javascript">
+
+function start() {
+
+	var contentHandler = new DefaultHandler2();
+
+	contentHandler.startElement = function(namespaceURI, localName, qName, atts) {
+		document.getElementById("result").innerHTML += "<br/>startElement : [" + namespaceURI + "], [" + localName + "], [" + qName + "]";
+	};
+
+	var saxParser = XMLReaderFactory.createXMLReader();
+
+	saxParser.setHandler(contentHandler);
+	saxParser.parseString("<root><tag>value</tag></root>");
+}
+		</script>
+	</head>
+
+	<body onload="start()">
+		<div id="result"></div>
+
+	</body>
+</html>

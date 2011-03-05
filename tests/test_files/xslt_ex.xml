@@ -1,0 +1,33 @@
+<stylesheet xmlns="http://www.w3.org/1999/XSL/Transform"
+    xmlns:rng="http://relaxng.org/ns/structure/1.0"
+    xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+    xmlns:nsp="namespace_declaration"
+    version="1.0">
+    
+    <output method="html"/>
+    <strip-space elements="*"/>
+    <!-- url of  main schema, used when the start markup is in an included schema and
+    	there are references to be found in the main schema which is not included -->
+	<param name="mainSchemaHref"/>
+	<!-- in order not to spend several hours transforming a huge schema, sets a limit -->
+	<param name="maxRefs" select="'9'"/>
+	
+    <variable name="namespaces" select="//nsp:namespace"/>
+    
+    <template match="/">
+        <form>
+            <apply-templates select="rng:grammar"/>
+        </form>
+    </template>
+    
+    <template match="rng:grammar">
+        <for-each select="$namespaces">
+            <call-template name="namespaceDeclaration">
+                <with-param name="prefix" select="current()/@prefix"/>
+                <with-param name="uri" select="current()/@uri"/>
+            </call-template>
+        </for-each>
+        <apply-templates select="rng:start|rng:include[not(../rng:start)]|rng:externalRef[not(../rng:start)]"/>
+    </template>
+
+</stylesheet>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.0" width="1100" height="1030">
+  <defs>
+    <linearGradient id="linearGradient1">
+      <stop stop-color="white" stop-opacity="1" offset="0" />
+      <stop stop-color="white" stop-opacity="0" offset="1" />
+    </linearGradient>
+    <linearGradient id="linearGradient2">
+      <stop stop-color="#FE1313" stop-opacity="1" offset="0" />
+      <stop stop-color="#FE1313" stop-opacity="0" offset="1" />
+    </linearGradient>
+    <radialGradient cx="364" cy="678" r="292" fx="364" fy="678" id="radialGradient1" xlink:href="#linearGradient1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-1.22941, 0.00479673, 0.00468104, 1.19975, 1184.24, -148.253)" />
+    <radialGradient cx="520" cy="500" r="462" fx="520" fy="500" id="radialGradient2" xlink:href="#linearGradient2" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.32542, -2.09361e-06, 2.05597e-06, 1.2239, -169.222, -111.949)" />
+    <radialGradient cx="364" cy="678" r="292" fx="364" fy="678" id="radialGradient3" xlink:href="#linearGradient1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.22941, 0.00479673, -0.00468104, 1.19975, -85.2389, -136.253)" />
+  </defs>
+  <path d="M 936,417 C 736,315 390,658 481,838 C 548,972 793,1026 944,885 C 1108,732 1059,479 936,417 z " fill="black" />
+  <path d="M 936,417 C 736,315 390,658 481,838 C 548,972 793,1026 944,885 C 1108,732 1059,479 936,417 z " fill="url(#radialGradient1)" />
+  <path d="M 936,417 C 736,315 390,658 481,838 C 548,972 793,1026 944,885 C 1108,732 1059,479 936,417 z " fill="url(#radialGradient1)" />
+  <circle cx="524" cy="492" r="442" fill="black" />
+  <circle cx="524" cy="492" r="442" fill="url(#radialGradient2)" />
+  <circle cx="524" cy="492" r="442" fill="url(#radialGradient2)" />
+  <path d="M 163,429 C 363,327 709,670 618,850 C 551,984 306,1038 155,897 C -9,744 40,491 163,429 z " fill="black" />
+  <path d="M 163,429 C 363,327 709,670 618,850 C 551,984 306,1038 155,897 C -9,744 40,491 163,429 z " fill="url(#radialGradient3)" />
+  <path d="M 163,429 C 363,327 709,670 618,850 C 551,984 306,1038 155,897 C -9,744 40,491 163,429 z " fill="url(#radialGradient3)" />
+</svg>

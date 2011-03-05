@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <title>SAX Tests - DTD validation</title>
+    <script type="text/javascript" src="../jsunit/app/jsUnitCore.js"></script>
+    <script type="text/javascript" src="../jssaxparser/sax.js"></script>
+    <script type="text/javascript" src="../jssaxparser/DomContentHandler.js"></script>
+    <script type="text/javascript" src="../jssaxparser/validation_common/validator_functions.js"></script>
+    <script type="text/javascript" src="../jssaxparser/validation_common/validator_objects.js"></script>
+    <script type="text/javascript" src="../jssaxparser/jsdatatypelibrary-0.2/datatype_library.js"></script>
+    
+    <script type="text/javascript" src="../examples/xml_samples.js"></script>
+    <script type="text/javascript" src="manageWhiteSpace.js"></script>
+    <script type="text/javascript" src="dom_utils.js"></script>
+    <script type="text/javascript" src="jsxmlunit.js"></script>
+    <script type="text/javascript" src="applyXslt.js"></script>
+    <script type="text/javascript"><!--//--><![CDATA[//><!--
+
+    /*global assertTrue, loadFile, JsUnitException, DomContentHandler, XMLReaderFactory, alert, document */
+	// (Note: change reference to SAXParser above if change name)
+    var contentHandler;
+    var saxParser;
+    
+    function setUp() {
+        contentHandler = new DomContentHandler();
+        saxParser = XMLReaderFactory.createXMLReader();
+        saxParser.setHandler(contentHandler);
+        saxParser.setFeature('http://xml.org/sax/features/validation', true);
+    }
+
+	function parse(xml) {
+        try {
+            saxParser.parseString(xml);
+        } catch(e) {
+            document.getElementById("output").innerHTML += e.message;
+            assertTrue(e.message, false);
+        }
+        assertTrue(contentHandler.saxParseExceptions.length + " SAX exception(s) has(have) been thrown",
+		contentHandler.saxParseExceptions.length === 0);
+    }
+    
+    function parse_invalid(xml) {
+        try {
+            saxParser.parseString(xml);
+            assertTrue("there should have been a validation exception thrown", false);
+        } catch(e) {
+            document.getElementById("output").innerHTML += e.message;
+        }
+    }
+    
+    function testParse_catalog_dtd_invalid_markup() {
+        var fileAsText = loadFile("test_files/catalog_dtd_invalid_markup.xml");
+        parse_invalid(fileAsText);
+    }
+    
+    function testParse_catalog_dtd() {
+        var fileAsText = loadFile("test_files/catalog_dtd.xml");
+        parse(fileAsText);
+    }
+    
+	function runAllTests () {
+        setUp();
+        testParse_catalog_dtd();
+        setUp();
+        testParse_catalog_dtd_invalid_markup();
+        alert('done!');
+	}
+	
+	// Brett added to be able to show something in console when error is thrown
+	JsUnitException.prototype.toString = function () {
+		return this.jsUnitMessage;
+	};
+    //--><!]]></script>
+  </head>
+  <body onload="runAllTests()">
+    <p>This is a Test Page for dtd_validator.js</p>
+    <div id="output"></div>
+  </body>
+</html>

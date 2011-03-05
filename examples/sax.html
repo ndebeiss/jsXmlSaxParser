@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+	<head>
+		<title>SAX</title>
+		<script type="text/javascript" src="xml_samples.js"></script>
+        <script type="text/javascript" src="../jssaxparser/AttributesImpl.js"></script>
+        <script type="text/javascript" src="../jssaxparser/NamespaceSupport.js"></script>
+        <script type="text/javascript" src="../jssaxparser/sax.js"></script>
+        <script type="text/javascript" src="../jssaxparser/DummyContentHandler.js"></script>
+		<script type="text/javascript">
+		
+		var xml = loadXml();
+        //var xml = loadRelaxng();
+        //var xml = loadXml2();
+        //var xml = loadRelaxng2();
+        //var xml = loadXml3();
+        //var xml = loadRelaxng3();
+		
+		function start() {
+			var textarea = document.getElementById("xml");
+			var div = document.getElementById("msg");
+                        div.innerHTML = "";
+			var contentHandler = new DummyContentHandler(div);
+			var saxParser = new SAXParser(contentHandler, contentHandler, contentHandler, contentHandler, contentHandler);
+                        saxParser.parseString(textarea.value);
+		}
+		
+		</script>
+		
+	</head>
+	
+	<body>
+                <textarea id="xml" cols="60" rows="20"><?xml version="1.0"?>
+<rootmarkup id="wer" type="eg"> \
+			<firstmarkupunderroot>efs</firstmarkupunderroot> \
+			<secondmarkupunderroot name="we"> \
+				<firstchoice choice="sf"/> \
+			</secondmarkupunderroot> \
+		</rootmarkup>
+                </textarea>
+		<div id="msg"></div>
+		<div>
+			<input type="button" onclick="start()" value="start"/>
+		</div>
+	</body>
+</html>
