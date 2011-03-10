@@ -899,29 +899,33 @@ SAXScanner.prototype.scanEntityDecl = function() {
         } else {
             entityName = this.scanName();
             this.reader.skipWhiteSpaces();
-            //if already declared, not effective
-            if (!this.entities[entityName]) {
-                externalId = new ExternalId();
-                if (this.scanExternalId(externalId)) {
-                    if (this.reader.matchStr("NDATA")) {
-                        this.reader.skipWhiteSpaces();
-                        var ndataName = this.scanName();
-                        this.saxEvents.unparsedEntityDecl(entityName, externalId.publicId, externalId.systemId, ndataName);
-                    }
+            externalId = new ExternalId();
+            if (this.scanExternalId(externalId)) {
+                this.reader.skipWhiteSpaces();
+                if (this.reader.matchStr("NDATA")) {
+                    this.reader.skipWhiteSpaces();
+                    var ndataName = this.scanName();
+                    this.saxEvents.unparsedEntityDecl(entityName, externalId.publicId, externalId.systemId, ndataName);
+                }
+                if (typeof this.externalEntities[entityName] === "undefined") {
                     this.externalEntities[entityName] = externalId;
                 } else {
-                    entityValue = this.scanEntityValue();
+                    //an XML processor MAY issue a warning if entities are declared multiple times.
+                    this.saxEvents.warning("external entity : [" + entityName + "] is declared several times, only first value : [" + this.externalEntities[entityName] + "] is effective, declaration : [" + externalId + "] is ignored");
+                }
+            } else {
+                entityValue = this.scanEntityValue();
+                if (typeof this.entities[entityName] === "undefined") {
                     if (this.isEntityReferencingItself(entityName, entityValue)) {
                         this.saxEvents.error("circular entity declaration, entity : [" + entityName + "] is referencing itself directly or indirectly", this);
                     } else {
                         this.entities[entityName] = entityValue;
                         this.saxEvents.internalEntityDecl(entityName, entityValue);
                     }
+                } else {
+                    //an XML processor MAY issue a warning if entities are declared multiple times.
+                    this.saxEvents.warning("entity : [" + entityName + "] is declared several times, only first value : [" + this.entities[entityName] + "] is effective, declaration : [" + entityValue + "] is ignored");
                 }
-            } else {
-                var ignored = this.reader.nextCharWhileNot(">");
-                //an XML processor MAY issue a warning if entities are declared multiple times.
-                this.saxEvents.warning("entity : [" + entityName + "] is declared several times, only first value : [" + this.entities[entityName] + "] is effective, declaration : [" + ignored + "] is ignored");
             }
         }
         this.reader.nextChar();
@@ -962,12 +966,23 @@ SAXScanner.prototype.isEntityReferencingItself = function(entityName, entityValu
 SAXScanner.prototype.scanEntityValue = function() {
     if (this.reader.equals('"') || this.reader.equals("'")) {
         var quote = this.reader.next();
-        var entityValue = this.reader.nextCharRegExp(new RegExp("[" + quote + "%]"));
-        //if found a "%" must replace it, EntityRef are not replaced here.
-        while (this.reader.matchChar("%")) {
-            var ref = this.scanPeRef();
-            entityValue += ref;
-            entityValue += this.reader.nextCharRegExp(new RegExp("[" + quote + "%]"));
+        var regexp = new RegExp("[" + quote + "&%]");
+        var entityValue = this.reader.nextCharRegExp(regexp);
+        //if found a "%" must replace it, EntityRef are not replaced here, but char ref are replaced
+        while (true) {
+            if (this.reader.matchChar("%")) {
+                entityValue += this.scanPeRef() + this.reader.nextCharRegExp(regexp);
+            } else if (this.reader.matchChar("&")) {
+                if (this.reader.matchChar("#")) {
+                    //replacement is added to character stream
+                    this.scanCharRef();
+                    entityValue += this.reader.nextCharRegExp(regexp);
+                } else {
+                    entityValue += "&" + this.reader.nextCharRegExp(regexp);
+                }
+            } else {
+                break;
+            }
         }
         if (/\uFFFF/.test(entityValue)) {
             return this.saxEvents.fatalError("invalid entity declaration value, must not contain U+FFFF", this);

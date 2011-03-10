@@ -39,6 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 (function () {
 
 function Serializer() {
+    this.warnSaxParseExceptions = [];
     this.saxParseExceptions = [];
     this.currentPrefixMapping = {};
     this.string = "";
@@ -50,7 +51,8 @@ function Serializer() {
 }
 
 Serializer.prototype.entify = function entify(str) { // FIX: this is probably too many replaces in some cases and a call to it may not be needed at all in some cases
-    return str.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(new RegExp('<', 'g'), '&lt;').replace(/"/g, '&quot;');
+    //must not replace '&' of entities or character references
+    return str.replace(/&(?!(amp;|gt;|lt;|quot;|#))/g, '&amp;').replace(/>/g, '&gt;').replace(new RegExp('<', 'g'), '&lt;').replace(/"/g, '&quot;');
 };
 
 Serializer.prototype.startDocument = function() {};
@@ -98,7 +100,7 @@ Serializer.prototype.characters = function(ch, start, length) {
         ch = ch.replace("\r\n", "&#10;");
         ch = ch.replace("\n", "&#10;");
         ch = ch.replace("\r", "&#13;");
-        this.string += ch;
+        this.string += this.entify(ch);
     }
 };
 
@@ -180,7 +182,7 @@ Serializer.prototype.unparsedEntityDecl = function (name, publicId, systemId, no
 
 // INTERFACE: ErrorHandler: http://www.saxproject.org/apidoc/org/xml/sax/ErrorHandler.html
 Serializer.prototype.warning = function(saxParseException) {
-    this.saxParseExceptions.push(saxParseException);
+    this.warnSaxParseExceptions.push(saxParseException);
 };
 Serializer.prototype.error = function(saxParseException) {
     this.saxParseExceptions.push(saxParseException);

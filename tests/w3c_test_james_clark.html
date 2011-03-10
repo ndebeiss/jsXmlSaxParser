@@ -39,6 +39,8 @@
     function isAssumedNotConformant(uri) {
         switch (uri) {
             case "valid/sa/012.xml":
+            case "valid/sa/064.xml":
+            case "valid/sa/089.xml":
                 return true;
             default:
                 return false;
@@ -79,8 +81,10 @@
         saxParser.setFeature('http://xml.org/sax/features/validation', true);
         saxParser.setFeature('http://debeissat.nicolas.free.fr/ns/attribute-whitespace-normalization', true);
         try {
-            saxParser.parse(new InputSource("xmlconf/xmltest/not-wf/not-sa/005.xml"));
+            saxParser.parse(new InputSource("xmlconf/xmltest/valid/sa/092.xml"));
             throwNotFatalException(saxParser.errorHandler);
+            var expected = loadFile("xmlconf/xmltest/valid/sa/out/092.xml");
+            var result = serializer.string;
         } catch(e) {
             assertTrue(e.message, true);
         }

@@ -660,7 +660,7 @@ SAXParser.prototype.attributeDecl_augmenting = function(eName, aName, type, mode
         SAXParser.addAttributesIn(element.pattern, alreadyDeclaredAttributes);
     }
     if (SAXParser.isAlreadyDeclared(aName, alreadyDeclaredAttributes)) {
-        //this.warning("attribute : [" + aName + "] under element : [" + eName + "] is already declared", this.parent.saxScanner);
+        this.warning("attribute : [" + aName + "] under element : [" + eName + "] is already declared", this.parent.saxScanner);
     } else {
         var datatype = new Datatype("http://www.w3.org/2001/XMLSchema-datatypes", "string");
         var paramList = [];
