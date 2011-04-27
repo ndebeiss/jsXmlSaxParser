@@ -177,9 +177,10 @@ function testParse_valid(testCaseId) {
                 parseTestCase_valid(uriBased, validOutput);
                 output.innerHTML += "<tr><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>valid<\/td><\/tr>";
             } catch(e) {
-                if (isAssumedNotConformant(uri)) {
+                var conformance = isAssumedNotConformant(uri);
+                if (conformance) {
                     notSupportedCt++;
-                    output.innerHTML += "<tr style=\"background-color: orange\"><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>NOT SUPPORTED<\/td><\/tr>";
+                    output.innerHTML += "<tr style=\"background-color: orange\"><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>" + conformance + "<\/td><\/tr>";
                 } else {
                     failedCt++;
                     output.innerHTML += "<tr style=\"background-color: red\"><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>FAILED, exception found :" + e.message + "<\/td><\/tr>";
@@ -210,9 +211,10 @@ function testParse_invalid(testCaseId) {
                 } else if (e instanceof SAXException) {
                     output.innerHTML += "<tr><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>" + e.message + "<\/td><\/tr>";
                 } else {
-                    if (isAssumedNotConformant(uri)) {
+                    var conformance = isAssumedNotConformant(uri);
+                    if (conformance) {
                         notSupportedCt++;
-                        output.innerHTML += "<tr style=\"background-color: orange\"><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>NOT SUPPORTED<\/td><\/tr>";
+                        output.innerHTML += "<tr style=\"background-color: orange\"><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>" + conformance + "<\/td><\/tr>";
                     } else {
                         failedCt++;
                         output.innerHTML += "<tr style=\"background-color: red\"><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>FAILED<\/td><\/tr>";
@@ -246,9 +248,10 @@ function testParse_not_wf(testCaseId) {
                 } else if (e instanceof SAXException) {
                     output.innerHTML += "<tr><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>" + e.message + "<\/td><\/tr>";
                 } else {
-                    if (isAssumedNotConformant(uri)) {
+                    var conformance = isAssumedNotConformant(uri);
+                    if (conformance) {
                         notSupportedCt++;
-                        output.innerHTML += "<tr style=\"background-color: orange\"><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>NOT SUPPORTED<\/td><\/tr>";
+                        output.innerHTML += "<tr style=\"background-color: orange\"><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>" + conformance + "<\/td><\/tr>";
                     } else {
                         failedCt++;
                         output.innerHTML += "<tr style=\"background-color: red\"><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>FAILED<\/td><\/tr>";
@@ -280,9 +283,10 @@ function testParse_error(testCaseId) {
                 } else if (e instanceof SAXException) {
                     output.innerHTML += "<tr><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>" + e.message + "<\/td><\/tr>";
                 } else {
-                    if (isAssumedNotConformant(uri)) {
+                    var conformance = isAssumedNotConformant(uri);
+                    if (conformance) {
                         notSupportedCt++;
-                        output.innerHTML += "<tr style=\"background-color: orange\"><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>NOT SUPPORTED<\/td><\/tr>";
+                        output.innerHTML += "<tr style=\"background-color: orange\"><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>" + conformance + "<\/td><\/tr>";
                     } else {
                         failedCt++;
                         output.innerHTML += "<tr style=\"background-color: red\"><td>" + uri + "<\/td><td>" + testLabel + "<\/td><td>FAILED<\/td><\/tr>";

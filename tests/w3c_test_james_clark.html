@@ -11,7 +11,7 @@
     <script type="text/javascript" src="../jssaxparser/Serializer.js"></script>
     <script type="text/javascript" src="../jssaxparser/validation_common/validator_functions.js"></script>
     <script type="text/javascript" src="../jssaxparser/validation_common/validator_objects.js"></script>
-    <script type="text/javascript" src="../jssaxparser/jsdatatypelibrary-0.2/datatype_library.js"></script>
+    <script type="text/javascript" src="../jssaxparser/jsdatatypelibrary-0.4/datatype_library.js"></script>
     <script type="text/javascript" src="../examples/xml_samples.js"></script>
     <script type="text/javascript" src="manageWhiteSpace.js"></script>
     <script type="text/javascript" src="dom_utils.js"></script>
@@ -39,9 +39,25 @@
     function isAssumedNotConformant(uri) {
         switch (uri) {
             case "valid/sa/012.xml":
+                return "test is obsolete";
             case "valid/sa/064.xml":
+                return "management of utf-8 char is dependent on javascript";
             case "valid/sa/089.xml":
-                return true;
+                return "got \uFFFF when decoding char ref, which is illegal";
+            case "valid/sa/103.xml":
+                return "Test demonstrates that an attribute can pass a less than sign as its value. but it is a text content : <doc>&#60;doc></doc>";
+            case "valid/sa/110.xml":
+                return "not coherent with 108 where CRLF is normalized to a single space, character reference should behave same way than character in entity";
+            case "valid/not-sa/009.xml":
+                return "order of attributes is not correct : If both the external and internal subsets are used, the internal subset MUST be considered to occur before the external subset";
+            case "valid/not-sa/013.xml":
+            case "valid/not-sa/014.xml":
+            case "valid/not-sa/015.xml":
+            case "valid/not-sa/016.xml":
+            case "valid/not-sa/028.xml":
+            case "valid/not-sa/029.xml":
+            case "valid/not-sa/030.xml":
+                return "does not support conditional sections";
             default:
                 return false;
         }
@@ -80,10 +96,12 @@
         saxParser.setHandler(serializer);
         saxParser.setFeature('http://xml.org/sax/features/validation', true);
         saxParser.setFeature('http://debeissat.nicolas.free.fr/ns/attribute-whitespace-normalization', true);
+        saxParser.setFeature('http://debeissat.nicolas.free.fr/ns/instance-augmentation', true);
+        saxParser.setFeature('http://apache.org/xml/features/nonvalidating/load-external-dtd', true);
         try {
-            saxParser.parse(new InputSource("xmlconf/xmltest/valid/sa/092.xml"));
+            saxParser.parse(new InputSource("xmlconf/xmltest/valid/not-sa/020.xml"));
             throwNotFatalException(saxParser.errorHandler);
-            var expected = loadFile("xmlconf/xmltest/valid/sa/out/092.xml");
+            var expected = loadFile("xmlconf/xmltest/valid/not-sa/out/020.xml");
             var result = serializer.string;
         } catch(e) {
             assertTrue(e.message, true);

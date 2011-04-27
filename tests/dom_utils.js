@@ -50,7 +50,8 @@ NOTATION_NODE = 12;
 
 function cloneArray(array) {
 	var clone = [];
-	for (var i in array) {
+        var i = array.length;
+        while (i--) {
 		clone[i] = array[i];
 	}
 	return clone;

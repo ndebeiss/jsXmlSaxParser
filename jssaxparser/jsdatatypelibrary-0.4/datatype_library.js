@@ -9,16 +9,16 @@ This software is a computer program whose purpose is to validate XML
 against a RelaxNG schema.
 
 This software is governed by the CeCILL license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -27,9 +27,9 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
+same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
@@ -49,8 +49,8 @@ IDREFS 	 															KO
 language 	A string that contains a valid language id									OK
 Name 	A string that contains a valid XML name									OK
 NCName																OK
-NMTOKEN 	A string that represents the NMTOKEN attribute in XML (only used with schema attributes)	KO
-NMTOKENS 	 														KO
+NMTOKEN 	A string that represents the NMTOKEN attribute in XML (only used with schema attributes)	OK
+NMTOKENS 	 														OK
 normalizedString 	A string that does not contain line feeds, carriage returns, or tabs				OK
 QName 	 															OK
 string 	A string														OK
@@ -114,68 +114,52 @@ whiteSpace 	Specifies how white space (line feeds, tabs, spaces, and carriage re
 */
 (function () { // Begin namespace
 
+    function _escapeRegExp (str) {
+        return str.replace(/\\/gm, "\\\\").replace(/([\f\b\n\t\r\[\^$|?*+(){}])/gm, "\\$1");
+    }
 
-function DatatypeLibrary() {
+    var _languageRegExp = new RegExp("^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$"),
+    _nameStartChar = "A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u0200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\ud800-\udb7f\udc00-\udfff",
+    _nameChar = _nameStartChar + "\\-\\.0-9\u00B7\u0300-\u036F\u203F-\u2040-",
+    _nameRegExp = new RegExp("^[:" + _nameStartChar + "][:" + _nameChar + "]*$"),
+    _nmtokenRegExp = new RegExp("^[:" + _nameChar + "]+$");
+    _nmtokensRegExp = new RegExp("^[:" + _nameChar + "]+( [:" + _nameChar + "]*)*$");
+    _ncNameRegExp = new RegExp("^[" + _nameStartChar + "][" + _nameChar + "]*$"),
+    _whitespaceChar = "\t\n\r",
+    _normalizedStringRegExp = new RegExp("^[^" + _whitespaceChar + "]*$"),
+    _qNameRegExp = new RegExp("^[" + _nameStartChar + "][" + _nameChar + "]*(:[" + _nameStartChar + "]+)?$"),
+    _tokenRegExp = new RegExp("^([^" + _whitespaceChar + " ](?!.*  )([^" + _whitespaceChar + "]*[^" + _whitespaceChar + " ])?)?$"),
+    _year = "-?([1-9][0-9]*)?[0-9]{4}",
+    _month = "[0-9]{2}",
+    _dayOfMonth = "[0-9]{2}",
+    _time = "[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]*)?",
+    _timeZone = "(Z|[\\-\\+][0-9][0-9]:[0-5][0-9])?",
+    _dateRegExp = new RegExp("^" + _year + "-" + _month + "-" + _dayOfMonth + _timeZone + "$"),
+    _dateTimeRegExp = new RegExp("^" + _year + "-" + _month + "-" + _dayOfMonth + "T" + _time + _timeZone + "$"),
+    _durationRegExp = new RegExp("^" + "-?P(?!$)([0-9]+Y)?([0-9]+M)?([0-9]+D)?(T(?!$)([0-9]+H)?([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?)?$"),
+    _gDayRegExp = new RegExp("^" + "---" + _dayOfMonth + _timeZone + "$"),
+    _gMonthRegExp = new RegExp("^" + "--" + _month + _timeZone + "$"),
+    _gMonthDayRegExp = new RegExp("^" + "--" + _month + "-" + _dayOfMonth + _timeZone + "$"),
+    _gYearRegExp = new RegExp("^" + _year + _timeZone + "$"),
+    _gYearMonthRegExp = new RegExp("^" + _year + "-" + _month + _timeZone + "$"),
+    _timeRegExp = new RegExp("^" + _time + _timeZone + "$"),
+    _LONG_MAX = 9223372036854775807,
+    _LONG_MIN = -9223372036854775808,
+    _INT_MAX = 2147483647,
+    _INT_MIN = -2147483648,
+    _SHORT_MAX = 32767,
+    _SHORT_MIN = -32768,
+    _BYTE_MAX = 127,
+    _BYTE_MIN = -128,
+    _UNSIGNED_LONG_MAX = 18446744073709551615,
+    _UNSIGNED_INT_MAX = 4294967295,
+    _UNSIGNED_SHORT_MAX = 65535,
+    _UNSIGNED_BYTE_MAX = 255,
+    _integer = "[\\-\\+]?[0-9]+",
+    _integerRegExp = new RegExp("^" + _integer + "$"),
+    _decimal = "[\\-\\+]?(?!$)[0-9]*(\\.[0-9]*)?",
+    _decimalRegExp = new RegExp("^" + _decimal + "$"),
 
-    this.languageRegExp = new RegExp("^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$");
-    this.nameStartChar = "A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u0200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\ud800-\udb7f\udc00-\udfff";
-    this.nameChar = this.nameStartChar + "\\-\\.0-9\u00B7\u0300-\u036F\u203F-\u2040-";
-    this.nameRegExp = new RegExp("^[:" + this.nameStartChar + "][:" + this.nameChar + "]*$");
-    this.ncNameRegExp = new RegExp("^[" + this.nameStartChar + "][" + this.nameChar + "]*$");
-
-    this.whitespaceChar = "\t\n\r";
-    this.normalizedStringRegExp = new RegExp("^[^" + this.whitespaceChar + "]*$");
-    
-    this.qNameRegExp = new RegExp("^[" + this.nameStartChar + "][" + this.nameChar + "]*(:[" + this.nameStartChar + "]+)?$");
-    
-    this.tokenRegExp = new RegExp("^([^" + this.whitespaceChar + " ](?!.*  )([^" + this.whitespaceChar + "]*[^" + this.whitespaceChar + " ])?)?$");
-    
-    this.year = "-?([1-9][0-9]*)?[0-9]{4}";
-    this.month = "[0-9]{2}";
-    this.dayOfMonth = "[0-9]{2}";
-    this.time = "[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]*)?";
-    this.timeZone = "(Z|[\\-\\+][0-9][0-9]:[0-5][0-9])?";
-    
-    this.dateRegExp = new RegExp("^" + this.year + "-" + this.month + "-" + this.dayOfMonth + this.timeZone + "$");
-    
-    this.dateTimeRegExp = new RegExp("^" + this.year + "-" + this.month + "-" + this.dayOfMonth + "T" + this.time + this.timeZone + "$");
-    
-    this.durationRegExp = new RegExp("^" + "-?P(?!$)([0-9]+Y)?([0-9]+M)?([0-9]+D)?(T(?!$)([0-9]+H)?([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?)?$");
-    
-    this.gDayRegExp = new RegExp("^" + "---" + this.dayOfMonth + this.timeZone + "$");
-    
-    this.gMonthRegExp = new RegExp("^" + "--" + this.month + this.timeZone + "$");
-    
-    this.gMonthDayRegExp = new RegExp("^" + "--" + this.month + "-" + this.dayOfMonth + this.timeZone + "$");
-    
-    this.gYearRegExp = new RegExp("^" + this.year + this.timeZone + "$");
-    
-    this.gYearMonthRegExp = new RegExp("^" + this.year + "-" + this.month + this.timeZone + "$");
-    
-    this.timeRegExp = new RegExp("^" + this.time + this.timeZone + "$");
-    
-    this.LONG_MAX = 9223372036854775807;
-    this.LONG_MIN = -9223372036854775808;
-    this.INT_MAX = 2147483647;
-    this.INT_MIN = -2147483648;
-    this.SHORT_MAX = 32767;
-    this.SHORT_MIN = -32768;
-    this.BYTE_MAX = 127;
-    this.BYTE_MIN = -128;
-
-    this.UNSIGNED_LONG_MAX = 18446744073709551615;
-    this.UNSIGNED_INT_MAX = 4294967295;
-    this.UNSIGNED_SHORT_MAX = 65535;
-    this.UNSIGNED_BYTE_MAX = 255;
-    
-    this.integer = "[\\-\\+]?[0-9]+";
-    
-    this.integerRegExp = new RegExp("^" + this.integer + "$");
-    
-    this.decimal = "[\\-\\+]?(?!$)[0-9]*(\\.[0-9]*)?";
-    
-    this.decimalRegExp = new RegExp("^" + this.decimal + "$");
-    
     /*
     Base64Binary  ::=  ((B64S B64S B64S B64S)*
                      ((B64S B64S B64S B64) |
@@ -190,28 +174,27 @@ B04S         ::= B04 #x20?
 
 B04         ::=  [AQgw]
 B16         ::=  [AEIMQUYcgkosw048]
-B64         ::=  [A-Za-z0-9+/] 
+B64         ::=  [A-Za-z0-9+/]
 */
-    this.b64 = "[A-Za-z0-9+/]";
-    this.b16 = "[AEIMQUYcgkosw048]";
-    this.b04 = "[AQgw]";
-    this.b04S = "(" + this.b04 + " ?)";
-    this.b16S = "(" + this.b16 + " ?)";
-    this.b64S = "(" + this.b64 + " ?)";
-    
-    this.base64BinaryRegExp = new RegExp("^((" + this.b64S + "{4})*((" + this.b64S + "{3}" + this.b64 + ")|(" + this.b64S + "{2}" + this.b16S + "=)|(" + this.b64S + this.b04S + "= ?=)))?$");
-    
-    this.booleanRegExp = new RegExp("(^true$)|(^false$)|(^0$)|(^1$)", "i");
-    
-    this.doubleRegExp = new RegExp("(^-?INF$)|(^NaN$)|(^" + this.decimal + "([Ee]" + this.integer + ")?$)");
-    
-    this.hexBinaryRegExp = new RegExp("^" + "[0-9a-fA-F]*" + "$");
-    
-    this.fractionDigits = "\\.[0-9]";
-    
-    this.PRESERVE = "preserve";
-    this.REPLACE = "replace";
-    this.COLLAPSE = "collapse";
+    _b64 = "[A-Za-z0-9+/]",
+    _b16 = "[AEIMQUYcgkosw048]",
+    _b04 = "[AQgw]",
+    _b04S = "(" + _b04 + " ?)",
+    _b16S = "(" + _b16 + " ?)",
+    _b64S = "(" + _b64 + " ?)",
+    _base64BinaryRegExp = new RegExp("^((" + _b64S + "{4})*((" + _b64S + "{3}" + _b64 + ")|(" + _b64S + "{2}" + _b16S + "=)|(" + _b64S + _b04S + "= ?=)))?$"),
+    _booleanRegExp = new RegExp("(^true$)|(^false$)|(^0$)|(^1$)", "i"),
+    _doubleRegExp = new RegExp("(^-?INF$)|(^NaN$)|(^" + _decimal + "([Ee]" + _integer + ")?$)"),
+    _hexBinaryRegExp = new RegExp("^" + "[0-9a-fA-F]*" + "$"),
+    _fractionDigits = "\\.[0-9]",
+    _PRESERVE = "preserve",
+    _REPLACE = "replace",
+    _COLLAPSE = "collapse"
+    ;
+
+
+function DatatypeLibrary() {
+
 }
 
     /*
@@ -223,155 +206,161 @@ DatatypeLibrary.prototype.datatypeAllows = function(datatype, paramList, string,
     var value;
     if (datatype.uri === "http://www.w3.org/2001/XMLSchema-datatypes") {
         /*
-        
+
         Date and duration checks
-        
+
         */
         switch (datatype.localName) {
             case "date":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.dateRegExp, value, datatype, paramList);                
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_dateRegExp, value, datatype, paramList);
             case "dateTime":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.dateTimeRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_dateTimeRegExp, value, datatype, paramList);
             case "gDay":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.gDayRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_gDayRegExp, value, datatype, paramList);
             case "gMonth":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.gMonthRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_gMonthRegExp, value, datatype, paramList);
             case "gMonthDay":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.gMonthDayRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_gMonthDayRegExp, value, datatype, paramList);
             case "gYear":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.gYearRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_gYearRegExp, value, datatype, paramList);
             case "gYearMonth":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.gYearMonthRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_gYearMonthRegExp, value, datatype, paramList);
             case "time":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.timeRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_timeRegExp, value, datatype, paramList);
             case "duration":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.durationRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_durationRegExp, value, datatype, paramList);
         /*
-        
+
         primitive types
-    
+
         */
             case "boolean":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.booleanRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_booleanRegExp, value, datatype, paramList);
             case "base64Binary":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.base64BinaryRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_base64BinaryRegExp, value, datatype, paramList);
             case "hexBinary":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.hexBinaryRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_hexBinaryRegExp, value, datatype, paramList);
             case "float":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.doubleRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_doubleRegExp, value, datatype, paramList);
             case "double":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.doubleRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_doubleRegExp, value, datatype, paramList);
             case "anyURI":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
                 return this.checkParams(value, datatype, paramList);
             case "QName":
             case "NOTATION":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                var result = this.checkRegExpAndParams(this.qNameRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                var result = this.checkRegExpAndParams(_qNameRegExp, value, datatype, paramList);
                 if (result instanceof NotAllowed) {
                     return result;
                 }
                 return this.checkPrefixDeclared(value, context, datatype);
         /*
-        
+
         types derived from string
-        
+
         */
             case "string":
-                value = this.whitespace(string, this.PRESERVE, paramList);
+                value = this.whitespace(string, _PRESERVE, paramList);
                 return this.checkParams(value, datatype, paramList);
             case "normalizedString":
-                value = this.whitespace(string, this.PRESERVE, paramList);
-                return this.checkRegExpAndParams(this.normalizedStringRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _PRESERVE, paramList);
+                return this.checkRegExpAndParams(_normalizedStringRegExp, value, datatype, paramList);
             case "token":
-                value = this.whitespace(string, this.PRESERVE, paramList);
-                return this.checkRegExpAndParams(this.tokenRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _PRESERVE, paramList);
+                return this.checkRegExpAndParams(_tokenRegExp, value, datatype, paramList);
             case "language":
-                value = this.whitespace(string, this.PRESERVE, paramList);
-                return this.checkRegExpAndParams(this.languageRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _PRESERVE, paramList);
+                return this.checkRegExpAndParams(_languageRegExp, value, datatype, paramList);
             case "Name":
-                value = this.whitespace(string, this.PRESERVE, paramList);
-                return this.checkRegExpAndParams(this.nameRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _PRESERVE, paramList);
+                return this.checkRegExpAndParams(_nameRegExp, value, datatype, paramList);
             case "NCName":
-                value = this.whitespace(string, this.PRESERVE, paramList);
-                return this.checkRegExpAndParams(this.ncNameRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _PRESERVE, paramList);
+                return this.checkRegExpAndParams(_ncNameRegExp, value, datatype, paramList);
+            case "NMTOKEN":
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_nmtokenRegExp, value, datatype, paramList);
+            case "NMTOKENS":
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_nmtokensRegExp, value, datatype, paramList);
         /*
-        
+
         types derived from decimal
-        
+
         */
             case "decimal":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.decimalRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_decimalRegExp, value, datatype, paramList);
             case "integer":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkRegExpAndParams(this.integerRegExp, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkRegExpAndParams(_integerRegExp, value, datatype, paramList);
             case "long":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkIntegerRange(this.LONG_MIN, this.LONG_MAX, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkIntegerRange(_LONG_MIN, _LONG_MAX, value, datatype, paramList);
             case "int":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkIntegerRange(this.INT_MIN, this.INT_MAX, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkIntegerRange(_INT_MIN, _INT_MAX, value, datatype, paramList);
             case "short":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkIntegerRange(this.SHORT_MIN, this.SHORT_MAX, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkIntegerRange(_SHORT_MIN, _SHORT_MAX, value, datatype, paramList);
             case "byte":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkIntegerRange(this.BYTE_MIN, this.BYTE_MAX, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkIntegerRange(_BYTE_MIN, _BYTE_MAX, value, datatype, paramList);
         /*
-        
+
         integer types
-        
+
         */
             case "negativeInteger":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
                 return this.checkIntegerRange(undefined, -1, value, datatype, paramList);
             case "nonPositiveInteger":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
                 return this.checkIntegerRange(undefined, 0, value, datatype, paramList);
             case "nonNegativeInteger":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
                 return this.checkIntegerRange(0, undefined, value, datatype, paramList);
             case "positiveInteger":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
                 return this.checkIntegerRange(1, undefined, value, datatype, paramList);
         /*
-        
+
         signed or unsigned numbers
-        
+
         */
             case "unsignedLong":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkIntegerRange(0, this.UNSIGNED_LONG_MAX, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkIntegerRange(0, _UNSIGNED_LONG_MAX, value, datatype, paramList);
             case "unsignedInt":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkIntegerRange(0, this.UNSIGNED_INT_MAX, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkIntegerRange(0, _UNSIGNED_INT_MAX, value, datatype, paramList);
             case "unsignedShort":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkIntegerRange(0, this.UNSIGNED_SHORT_MAX, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkIntegerRange(0, _UNSIGNED_SHORT_MAX, value, datatype, paramList);
             case "unsignedByte":
-                value = this.whitespace(string, this.COLLAPSE, paramList);
-                return this.checkIntegerRange(0, this.UNSIGNED_BYTE_MAX, value, datatype, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
+                return this.checkIntegerRange(0, _UNSIGNED_BYTE_MAX, value, datatype, paramList);
             default:
-                value = this.whitespace(string, this.COLLAPSE, paramList);
+                value = this.whitespace(string, _COLLAPSE, paramList);
                 return this.checkParams(value, datatype, paramList);
         }
     } else {
-        value = this.whitespace(string, this.COLLAPSE, paramList);
+        value = this.whitespace(string, _COLLAPSE, paramList);
         return this.checkParams(value, datatype, paramList);
     }
 };
@@ -386,8 +375,8 @@ DatatypeLibrary.prototype.datatypeEqual = function(datatype, patternString, patt
     if (datatype.uri === "http://www.w3.org/2001/XMLSchema-datatypes") {
         switch (datatype.localName) {
             case "boolean":
-                value = this.whitespace(string, this.COLLAPSE);
-                patternValue = this.whitespace(patternString, this.COLLAPSE);
+                value = this.whitespace(string, _COLLAPSE);
+                patternValue = this.whitespace(patternString, _COLLAPSE);
                 if (value.toLowerCase() === patternValue.toLowerCase()) {
                     return new Empty();
                 }
@@ -423,21 +412,35 @@ DatatypeLibrary.prototype.datatypeEqual = function(datatype, patternString, patt
             case "anyURI":
             case "QName":
             case "NOTATION":
-                value = this.whitespace(string, this.COLLAPSE);
-                patternValue = this.whitespace(patternString, this.COLLAPSE);
+                value = this.whitespace(string, _COLLAPSE);
+                patternValue = this.whitespace(patternString, _COLLAPSE);
                 if (value === patternValue) {
                     return new Empty();
                 }
                 return new NotAllowed("invalid value, expected is " + patternValue, datatype, string, 10);
-                
+
             case "string":
             case "normalizedString":
             case "token":
             case "language":
             case "Name":
             case "NCName":
-                value = this.whitespace(string, this.PRESERVE);
-                patternValue = this.whitespace(patternString, this.PRESERVE);
+                value = this.whitespace(string, _PRESERVE);
+                patternValue = this.whitespace(patternString, _PRESERVE);
+                if (value === patternValue) {
+                    return new Empty();
+                }
+                return new NotAllowed("invalid value, expected is " + patternValue, datatype, string, 10);
+            case "NMTOKEN":
+                value = this.whitespace(string, _COLLAPSE);
+                patternValue = this.whitespace(patternString, _COLLAPSE);
+                if (value === patternValue) {
+                    return new Empty();
+                }
+                return new NotAllowed("invalid value, expected is " + patternString, datatype, string, 10);
+            case "NMTOKENS":
+                value = this.whitespace(string, _COLLAPSE);
+                patternValue = this.whitespace(patternString, _COLLAPSE);
                 if (value === patternValue) {
                     return new Empty();
                 }
@@ -450,8 +453,8 @@ DatatypeLibrary.prototype.datatypeEqual = function(datatype, patternString, patt
                 }
                 return new NotAllowed("invalid value, expected is " + patternValue, datatype, string, 10);
             case "hexBinary":
-                value = this.whitespace(string, this.COLLAPSE);
-                patternValue = this.whitespace(patternString, this.COLLAPSE);
+                value = this.whitespace(string, _COLLAPSE);
+                patternValue = this.whitespace(patternString, _COLLAPSE);
                 //canonical representation of hexBinary prohibites lower case
                 if (value.toUpperCase() === patternValue.toUpperCase()) {
                     return new Empty();
@@ -476,9 +479,9 @@ DatatypeLibrary.prototype.whitespace = function(string, wsDefault, paramList) {
             }
         }
     }
-    if (wsParam === this.PRESERVE) {
+    if (wsParam === _PRESERVE) {
         return string.replace(/[\t\n\r]/g, " ");
-    } else if (wsParam === this.COLLAPSE) {
+    } else if (wsParam === _COLLAPSE) {
         var value = string.replace(/[\t\n\r ]+/g, " ");
         //removes leading and trailing space
         return value.replace(/^ /, "").replace(/ $/, "");
@@ -487,7 +490,7 @@ DatatypeLibrary.prototype.whitespace = function(string, wsDefault, paramList) {
 };
 
 DatatypeLibrary.prototype.checkIntegerRange = function(min, max, string, datatype, paramList) {
-    var checkInteger = this.checkRegExp(this.integerRegExp, string, datatype);
+    var checkInteger = this.checkRegExp(_integerRegExp, string, datatype);
     if (checkInteger instanceof NotAllowed) {
         return checkInteger;
     }
@@ -614,7 +617,7 @@ DatatypeLibrary.prototype.checkParam = function(string, param, datatype) {
         }
     } else if (param.localName === "fractionDigits") {
         number = parseInt(param.string, 10);
-        regExp = new RegExp(this.fractionDigits + "{" + number + "}$");
+        regExp = new RegExp(_fractionDigits + "{" + number + "}$");
         check = this.checkRegExp(regExp, string, datatype);
         //adds an error message
         if (check instanceof NotAllowed) {
@@ -637,7 +640,7 @@ DatatypeLibrary.prototype.checkEnumeration = function(string, enumeration, datat
     var i = enumeration.length;
     while (i--) {
         value = enumeration[i];
-        var escaped = this.escapeRegExp(value);
+        var escaped = _escapeRegExp(value);
         var regExp = new RegExp("^" + escaped + "$");
         var check = this.checkRegExp(regExp, string, datatype);
         if (check instanceof Empty) {
@@ -653,10 +656,7 @@ DatatypeLibrary.prototype.checkEnumeration = function(string, enumeration, datat
     return new NotAllowed(msg, datatype, string, 10);
 };
 
-DatatypeLibrary.prototype.escapeRegExp = function (str) {
-    return str.replace(/\\/gm, "\\\\").replace(/([\f\b\n\t\r\[\^$|?*+(){}])/gm, "\\$1");
-};
-    
+
 this.DatatypeLibrary = DatatypeLibrary;
 
 }()); // end namespace

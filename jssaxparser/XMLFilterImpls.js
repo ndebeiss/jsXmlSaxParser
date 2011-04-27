@@ -175,13 +175,13 @@ XMLFilterImpl.prototype.resolveEntity = function (publicId, systemId) {
 
 // INTERFACE: DTDHandler: http://www.saxproject.org/apidoc/org/xml/sax/DTDHandler.html
 XMLFilterImpl.prototype.notationDecl = function (name, publicId, systemId) {
-    if (this.parent && this.parent.dtdHandler) {
+    if (this.parent && this.parent.dtdHandler && this.parent.dtdHandler.notationDecl) {
         return this.parent.dtdHandler.notationDecl.call(this.parent.dtdHandler, name, publicId, systemId);
     }
     return undefined;
 };
 XMLFilterImpl.prototype.unparsedEntityDecl = function (name, publicId, systemId, notationName) {
-    if (this.parent && this.parent.dtdHandler) {
+    if (this.parent && this.parent.dtdHandler && this.parent.dtdHandler.unparsedEntityDecl) {
         return this.parent.dtdHandler.unparsedEntityDecl.call(this.parent.dtdHandler, name, publicId, systemId, notationName);
     }
     return undefined;
@@ -231,28 +231,28 @@ XMLFilterImpl2.prototype.toString = function () {
 // INTERFACE: DeclHandler: http://www.saxproject.org/apidoc/org/xml/sax/ext/DeclHandler.html
 
 XMLFilterImpl2.prototype.attributeDecl = function(eName, aName, type, mode, value) {
-    if (this.parent && this.parent.declarationHandler) {
+    if (this.parent && this.parent.declarationHandler && this.parent.declarationHandler.attributeDecl) {
         return this.parent.declarationHandler.attributeDecl.call(this.parent.declarationHandler, eName, aName, type, mode, value);
     }
     return undefined;
 };
 
 XMLFilterImpl2.prototype.elementDecl = function(name, model) {
-    if (this.parent && this.parent.declarationHandler) {
+    if (this.parent && this.parent.declarationHandler && this.parent.declarationHandler.elementDecl) {
         return this.parent.declarationHandler.elementDecl.call(this.parent.declarationHandler,  name, model);
     }
     return undefined;
 };
 
 XMLFilterImpl2.prototype.externalEntityDecl = function(name, publicId, systemId) {
-    if (this.parent && this.parent.declarationHandler) {
+    if (this.parent && this.parent.declarationHandler && this.parent.declarationHandler.externalEntityDecl) {
         return this.parent.declarationHandler.externalEntityDecl.call(this.parent.declarationHandler,  name, publicId, systemId);
     }
     return undefined;
 };
 
 XMLFilterImpl2.prototype.internalEntityDecl = function(name, value) {
-    if (this.parent && this.parent.declarationHandler) {
+    if (this.parent && this.parent.declarationHandler && this.parent.declarationHandler.internalEntityDecl) {
         return this.parent.declarationHandler.internalEntityDecl.call(this.parent.declarationHandler,  name, value);
     }
     return undefined;
@@ -261,55 +261,55 @@ XMLFilterImpl2.prototype.internalEntityDecl = function(name, value) {
 // INTERFACE: LexicalHandler: http://www.saxproject.org/apidoc/org/xml/sax/ext/LexicalHandler.html
 
 XMLFilterImpl2.prototype.comment = function(ch, start, length) {
-    if (this.parent && this.parent.lexicalHandler) {
+    if (this.parent && this.parent.lexicalHandler && this.parent.lexicalHandler.comment) {
         return this.parent.lexicalHandler.comment.call(this.parent.lexicalHandler,  ch, start, length);
     }
     return undefined;
 };
 
 XMLFilterImpl2.prototype.endCDATA = function() {
-    if (this.parent && this.parent.lexicalHandler) {
+    if (this.parent && this.parent.lexicalHandler && this.parent.lexicalHandler.endCDATA) {
         return this.parent.lexicalHandler.endCDATA.call(this.parent.lexicalHandler);
     }
     return undefined;
 };
 
 XMLFilterImpl2.prototype.endDTD = function() {
-    if (this.parent && this.parent.lexicalHandler) {
+    if (this.parent && this.parent.lexicalHandler && this.parent.lexicalHandler.endDTD) {
         return this.parent.lexicalHandler.endDTD.call(this.parent.lexicalHandler);
     }
     return undefined;
 };
 
 XMLFilterImpl2.prototype.endEntity = function(name) {
-    if (this.parent && this.parent.lexicalHandler) {
+    if (this.parent && this.parent.lexicalHandler && this.parent.lexicalHandler.endEntity) {
         return this.parent.lexicalHandler.endEntity.call(this.parent.lexicalHandler, name);
     }
     return undefined;
 };
 
 XMLFilterImpl2.prototype.startCDATA = function() {
-    if (this.parent && this.parent.lexicalHandler) {
+    if (this.parent && this.parent.lexicalHandler && this.parent.lexicalHandler.startCDATA) {
         return this.parent.lexicalHandler.startCDATA.call(this.parent.lexicalHandler);
     }
     return undefined;
 };
 
 XMLFilterImpl2.prototype.startDTD = function(name, publicId, systemId) {
-    if (this.parent && this.parent.lexicalHandler) {
+    if (this.parent && this.parent.lexicalHandler && this.parent.lexicalHandler.startDTD) {
         return this.parent.lexicalHandler.startDTD.call(this.parent.lexicalHandler, name, publicId, systemId);
     }
     return undefined;
 };
 
 XMLFilterImpl2.prototype.startEntity = function(name) {
-    if (this.parent && this.parent.lexicalHandler) {
+    if (this.parent && this.parent.lexicalHandler && this.parent.lexicalHandler.startEntity) {
         return this.parent.lexicalHandler.startEntity.call(this.parent.lexicalHandler, name);
     }
     return undefined;
 };
 XMLFilterImpl2.prototype.startCharacterReference = function(hex, number) {
-    if (this.parent && this.parent.lexicalHandler) {
+    if (this.parent && this.parent.lexicalHandler && this.parent.lexicalHandler.startCharacterReference) {
         return this.parent.lexicalHandler.startCharacterReference.call(this.parent.lexicalHandler, hex, number);
     }
     return undefined;
@@ -320,13 +320,13 @@ XMLFilterImpl2.prototype.startCharacterReference = function(hex, number) {
 // XMLFilterImpl2.prototype.resolveEntity = function (publicId, systemId) {};
 // INTERFACE: EntityResolver2: http://www.saxproject.org/apidoc/org/xml/sax/ext/EntityResolver2.html
 XMLFilterImpl2.prototype.resolveEntity = function(name, publicId, baseURI, systemId) {
-    if (this.parent && this.parent.entityResolver) {
+    if (this.parent && this.parent.entityResolver && this.parent.entityResolver.resolveEntity) {
         return this.parent.entityResolver.resolveEntity.call(this.parent.entityResolver, name, publicId, baseURI, systemId);
     }
     return undefined;
 };
 XMLFilterImpl2.prototype.getExternalSubset = function(name, baseURI) {
-    if (this.parent && this.parent.entityResolver) {
+    if (this.parent && this.parent.entityResolver && this.parent.entityResolver.getExternalSubset) {
         return this.parent.entityResolver.getExternalSubset.call(this.parent.entityResolver, name, baseURI);
     }
     return undefined;

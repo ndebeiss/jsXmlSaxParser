@@ -215,7 +215,11 @@ AttributesImpl.prototype.removeAttribute = function (index) {
 
 AttributesImpl.prototype.addAttributeAtIndex = function (index, uri, localName, qName, type, value) {
     var prefix = _getPrefix.call(this, localName, qName);
-    this.attsArray.splice(index, 0, new Sax_Attribute(uri, prefix, localName, qName, type, value));
+    if (index > this.attsArray.length) {
+        this.attsArray[index] = new Sax_Attribute(uri, prefix, localName, qName, type, value);
+    } else {        
+        this.attsArray.splice(index, 0, new Sax_Attribute(uri, prefix, localName, qName, type, value));
+    }
 };
 
 AttributesImpl.prototype.setAttribute = function (index, uri, localName, qName, type, value) {
