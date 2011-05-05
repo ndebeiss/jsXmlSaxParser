@@ -38,8 +38,9 @@
     
     function isAssumedNotConformant(uri) {
         switch (uri) {
-            case "valid/sa/012.xml":
-                return true;
+            case "valid/element.xml":
+            case "valid/ext01.xml":
+                return "does not support element type ANY, can not be translated to RelaxNG validation model";
             default:
                 return false;
         }
@@ -78,9 +79,13 @@
         saxParser.setHandler(serializer);
         saxParser.setFeature('http://xml.org/sax/features/validation', true);
         saxParser.setFeature('http://debeissat.nicolas.free.fr/ns/attribute-whitespace-normalization', true);
+        saxParser.setFeature('http://debeissat.nicolas.free.fr/ns/instance-augmentation', true);
+        saxParser.setFeature('http://apache.org/xml/features/nonvalidating/load-external-dtd', true);
         try {
-            saxParser.parse(new InputSource("xmlconf/japanese/pr-xml-utf-16.xml"));
+            saxParser.parse(new InputSource("xmlconf/sun/valid/ext02.xml"));
             throwNotFatalException(saxParser.errorHandler);
+            var expected = loadFile("xmlconf/sun/valid/out/ext02.xml");
+            var result = serializer.string;
         } catch(e) {
             assertTrue(e.message, true);
         }

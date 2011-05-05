@@ -118,9 +118,11 @@ function parseTestCase_valid(uri, validOutput, strictChars) {
     try {
         saxParser2.parse(new InputSource(uri));
     } finally {}
-    var expected = loadFile(validOutput);
-    if (expected !== serializer.string) {
-        throw new SAXException("serialization output not correct : " + diffString(expected, serializer.string));
+    if (validOutput) {
+        var expected = loadFile(validOutput);
+        if (expected !== serializer.string) {
+            throw new SAXException("serialization output not correct : " + diffString(expected, serializer.string));
+        }
     }
     throwNotFatalException(saxParser2.errorHandler);
 }
@@ -171,7 +173,11 @@ function testParse_valid(testCaseId) {
             var uri = test.getAttribute("URI");
             var parentUri = removeFileName(test.custBaseURI);
             var uriBased = parentUri + uri;
-            var validOutput = parentUri + test.getAttribute("OUTPUT");
+            var outputAttr = test.getAttribute("OUTPUT");
+            var validOutput;
+            if (outputAttr) {
+                validOutput = parentUri + outputAttr;
+            }
             var testLabel = textContent(test);
             try {
                 parseTestCase_valid(uriBased, validOutput);

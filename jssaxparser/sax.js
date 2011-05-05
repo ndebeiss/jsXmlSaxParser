@@ -697,7 +697,7 @@ SAXParser.prototype.attributeDecl_augmenting = function(eName, aName, type, mode
         var paramList = [];
         //if it is an enumeration
         if (/^\(.+\)$/.test(type)) {
-            var typeToParse = type.replace("^\(", "").replace("\)$", "");
+            var typeToParse = type.replace(/^\(/, "").replace(/\)$/, "");
             var values = typeToParse.split("|");
             var i = values.length;
             while (i--) {
@@ -840,7 +840,12 @@ SAXParser.prototype.endDocument_validating = function() {
     if (this.pattern) {
         this.resultPattern = this.validatorFunctions.childDeriv(this.context, this.pattern, this.childNode);
         if (this.resultPattern instanceof NotAllowed) {
-            throw new SAXException("document not valid, message is : [" + this.resultPattern.message + "], expected was : [" + this.resultPattern.pattern.toHTML() + "], found is : [" + this.resultPattern.childNode.toHTML() + "]");
+            //may be string directly
+            var found = this.resultPattern.childNode;
+            if (found.toHTML) {
+                found = found.toHTML();
+            }
+            throw new SAXException("document not valid, message is : [" + this.resultPattern.message + "], expected was : [" + this.resultPattern.pattern.toHTML() + "], found is : [" + found + "]");
         }
     }
     return this.parent.contentHandler.endDocument.call(this.parent.contentHandler);
