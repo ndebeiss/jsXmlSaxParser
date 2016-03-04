@@ -1,3 +1,15 @@
+Copyright 2010-2016 Nicolas Debeissat and other contributors,
+http://debeissat.nicolas.free.fr/
+
+This software consists of voluntary contributions made by multiple individuals.
+For exact contribution history, see the revision history available at
+https://github.com/ndebeiss/jsXmlSaxParser
+
+The following license applies to all parts of this software except as documented
+below:
+
+--------------------------------------------------------------------------------
+
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -178,7 +190,7 @@
    APPENDIX: How to apply the Apache License to your work.
 
       To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "{}"
+      boilerplate notice, with the fields enclosed by brackets "[]"
       replaced with your own identifying information. (Don't include
       the brackets!)  The text should be enclosed in the appropriate
       comment syntax for the file format. We also recommend that a
@@ -186,7 +198,7 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2010 Nicolas Debeissat
+   Copyright [yyyy] [name of copyright owner]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -199,3 +211,16 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+--------------------------------------------------------------------------------
+
+This software bundles a number of components and libraries with separate
+copyright notices and license terms, including the ones below. We recommend you
+read them, as their terms may differ from the terms above.
+
+JsUnit (http://www.jsunit.net/)
+  License: MPL 1.1, GPL 2.0, or LGPL 2.1 (See jsunit/licenses/index.html)
+
+XML W3C Conformance Test Suite (https://www.w3.org/XML/Test/)
+  License: See LICENSES FOR W3C TEST SUITES at
+  https://www.w3.org/Consortium/Legal/2008/04-testsuite-copyright.html
