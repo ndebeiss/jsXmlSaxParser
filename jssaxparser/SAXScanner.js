@@ -456,9 +456,8 @@ may throw exception if entity has not been found (if external for example)
 SAXScanner.prototype.scanRef = function() {
     if (this.reader.matchChar("#")) {
         return this.scanCharRef();
-    } else {
-        this.scanEntityRef();
     }
+    this.scanEntityRef();
 };
 
 
@@ -1364,6 +1363,10 @@ SAXScanner.prototype.scanAttValue = function() {
                         throw e2;
                     }
                 }
+				//issue https://github.com/ndebeiss/jsXmlSaxParser/issues/2 with apos entity
+				if (this.reader.equals("'") && quote === "'") {
+					attValue += this.reader.next();
+				}
                 var attValueConcat = this.reader.nextCharRegExp(new RegExp("[" + quote + "<&]"));
                 //depends on property
                 if (this.saxEvents.attWhitespaceNormalize) {
@@ -1467,7 +1470,6 @@ SAXScanner.prototype.scanCharRef = function() {
 
 /*
 [68]  EntityRef ::= '&' Name ';'
-may return undefined, has to be managed differently depending on
 */
 SAXScanner.prototype.scanEntityRef = function() {
     try {
@@ -1476,16 +1478,15 @@ SAXScanner.prototype.scanEntityRef = function() {
         //current char must be ';'
         if (this.reader.unequals(";")) {
             this.saxEvents.error("entity : [" + entityName + "] contains an invalid character : [" + this.reader.peek() + "], or it is not ended by ;", this);
-            return "";
         }
         this.reader.nextChar(true);
         this.saxEvents.startEntity(entityName);
         this.saxEvents.endEntity(entityName);
-        // well-formed documents does not need to declare any of the following entities: amp, lt, gt, quot.
+        //the following entities : amp, lt, gt, quot are valid but they are not replaced (test James Clark xmltest\valid\sa\008 and 040)
         if (entityName.search(NOT_REPLACED_ENTITIES) !== -1) {
             throw new EntityNotReplacedException(entityName);
         }
-        //apos is replaced by '
+        //apos is replaced by ' (test James Clark xmltest\valid\sa\008 and 040)
         if (entityName.search(APOS_ENTITY) !== -1) {
             this.includeText("'");
         } else {
@@ -1498,7 +1499,7 @@ SAXScanner.prototype.scanEntityRef = function() {
     //adding a message in that case
     } catch(e) {
         if (e instanceof EndOfInputException) {
-            return this.saxEvents.fatalError("document incomplete, entity reference must end with ;", this);
+            this.saxEvents.fatalError("document incomplete, entity reference must end with ;", this);
         } else {
             throw e;
         }
